@@ -54,6 +54,7 @@ A comprehensive tutorial for executing token swaps on Solana using Jupiter V6, i
    SOLANA_RPC_URL=https://your-rpc-url-here
    WALLET_PRIVATE_KEY=[your,private,keypair,array,here]
    ```
+   We have included an example .env file in the repository for your convenience.
 
 ## 🚀 Usage
 
