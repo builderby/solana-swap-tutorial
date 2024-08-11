@@ -30,7 +30,7 @@ A comprehensive tutorial for executing token swaps on Solana using Jupiter V6, i
 
 ## 🛠 Prerequisites
 
-- Node.js (v16 or later)
+- Node.js (v18 or later)
 - npm (v6 or later)
 - A Solana wallet with SOL for transaction fees
 
