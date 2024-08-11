@@ -39,7 +39,7 @@ A comprehensive tutorial for executing token swaps on Solana using Jupiter V6, i
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/solana-swap-tutorial.git
+   git clone https://github.com/builderby/solana-swap-tutorial.git
    cd solana-swap-tutorial
    ```
 
