@@ -9,5 +9,3 @@ Thank you for considering contributing to this project! Here are some guidelines
 4. Push your changes to your forked repository.
 5. Create a pull request.
 
-## Code of Conduct
-Please adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
