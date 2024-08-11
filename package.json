@@ -1,0 +1,19 @@
+{
+  "name": "solana-swap-tutorial",
+  "version": "1.0.0",
+  "description": "A Solana Swap Tutorial by Builderby",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Builderby",
+  "license": "ISC",
+  "dependencies": {
+    "@solana/spl-token": "^0.4.8",
+    "@solana/web3.js": "^1.95.2",
+    "axios": "^1.7.3",
+    "bs58": "^5.0.0",
+    "dotenv": "^16.4.5"
+  }
+}
