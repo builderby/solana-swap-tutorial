@@ -33,6 +33,7 @@ A comprehensive tutorial for executing token swaps on Solana using Jupiter V6, i
 - Node.js (v18 or later)
 - npm (v6 or later)
 - A Solana wallet with SOL for transaction fees
+- 0.01 SOL in wallet for swap
 
 ## 📦 Installation
 
@@ -64,7 +65,7 @@ Run the script with:
 npm start
 ```
 
-This will execute a sample swap of 1 USDC to Wrapped SOL. Modify the `main` function in `index.js` to customize the swap parameters. Ensure you have the correct token addresses and amounts for your swap in the wallet for the swap to execute.
+This will execute a sample swap of 0.01 SOL to USDC. Modify the `main` function in `index.js` to customize the swap parameters. Ensure you have the correct token addresses and amounts for your swap in the wallet for the swap to execute.
 
 ## 💻 Code Explanation
 
