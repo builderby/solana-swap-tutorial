@@ -6,6 +6,12 @@
 
 A comprehensive tutorial for executing token swaps on Solana using Jupiter V6, incorporating advanced features like versioned transactions, priority fees, compute budget optimization, Address Lookup Tables (ALTs), and Jito bundles.
 
+
+
+![Solana Swap Process](./images/solana_swap_process.png)
+
+
+
 ## 📚 Table of Contents
 
 - [Features](#-features)

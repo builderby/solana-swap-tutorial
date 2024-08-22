@@ -85,7 +85,7 @@ async function swap(
       const swapInstruction = deserializeInstruction(swapInstructionPayload);
 
       // 3. Prepare transaction
-      console.log("\n🛠️ Preparing transaction...");
+      console.log("\n🛠️  Preparing transaction...");
       const addressLookupTableAccounts = await getAddressLookupTableAccounts(
         addressLookupTableAddresses
       );
@@ -226,7 +226,7 @@ async function main() {
     console.log("\n🎉 Swap completed successfully!");
     console.log("Swap result:");
     console.log(JSON.stringify(result.bundleStatus, null, 2));
-    console.log("\n🖋️ Transaction signature:", result.signature);
+    console.log("\n🖋️  Transaction signature:", result.signature);
     console.log(`🔗 View on Solscan: https://solscan.io/tx/${result.signature}`);
   } catch (error) {
     console.error("\n💥 Error in main function:");
