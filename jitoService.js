@@ -56,6 +56,8 @@ async function createJitoBundle(transaction, wallet) {
     tipTransaction.feePayer = wallet.publicKey;
     tipTransaction.sign(wallet);
 
+    const signature = bs58.encode(transaction.signatures[0]);
+
     console.log("🔄 Encoding transactions...");
     const bundle = [tipTransaction, transaction].map((tx, index) => {
       console.log(`📦 Encoding transaction ${index + 1}`);

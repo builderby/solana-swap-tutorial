@@ -18,14 +18,16 @@ async function getTokenInfo(mint) {
 async function getAveragePriorityFee() {
   const priorityFees = await connection.getRecentPrioritizationFees();
   if (priorityFees.length === 0) {
-    return 10000; // Default to 10000 micro-lamports if no data
+    return { microLamports: 10000, solAmount: 0.00001 }; // Default to 10000 micro-lamports if no data
   }
 
   const recentFees = priorityFees.slice(-150); // Get fees from last 150 slots
   const averageFee =
     recentFees.reduce((sum, fee) => sum + fee.prioritizationFee, 0) /
     recentFees.length;
-  return Math.ceil(averageFee);
+  const microLamports = Math.ceil(averageFee);
+  const solAmount = microLamports / 1e6 / 1e3; // Convert micro-lamports to SOL
+  return { microLamports, solAmount };
 }
 
 module.exports = {

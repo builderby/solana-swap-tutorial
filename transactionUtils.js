@@ -108,7 +108,7 @@ function createVersionedTransaction(
     units: computeUnits,
   });
   const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: priorityFee,
+    microLamports: priorityFee.microLamports,
   });
 
   const finalInstructions = [computeBudgetIx, priorityFeeIx, ...instructions];

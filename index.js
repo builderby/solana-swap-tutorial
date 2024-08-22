@@ -1,8 +1,6 @@
 const {
   Connection,
   Keypair,
-  PublicKey,
-  VersionedTransaction,
 } = require("@solana/web3.js");
 const {
   deserializeInstruction,
@@ -18,6 +16,7 @@ const {
   checkBundleStatus,
 } = require("./jitoService");
 const { SOLANA_RPC_URL, WALLET_PRIVATE_KEY } = require("./config");
+const bs58 = require('bs58');
 
 const connection = new Connection(SOLANA_RPC_URL);
 const wallet = Keypair.fromSecretKey(
@@ -123,7 +122,7 @@ async function swap(
       const priorityFee = await getAveragePriorityFee();
 
       console.log(`🧮 Compute units: ${computeUnits}`);
-      console.log(`💸 Priority fee: ${priorityFee} micro-lamports`);
+      console.log(`💸 Priority fee: ${priorityFee.microLamports} micro-lamports (${priorityFee.solAmount.toFixed(9)} SOL)`);
 
       // 5. Create versioned transaction
       const transaction = createVersionedTransaction(
@@ -183,7 +182,8 @@ async function swap(
       console.log("\n✨ Swap executed successfully! ✨");
       console.log("========== SWAP COMPLETE ==========\n");
 
-      return bundleStatus;
+      const signature = bs58.encode(transaction.signatures[0]);
+      return { bundleStatus, signature };
     } catch (error) {
       console.error(
         `\n❌ Error executing swap (attempt ${retries + 1}/${maxRetries}):`
@@ -225,7 +225,9 @@ async function main() {
 
     console.log("\n🎉 Swap completed successfully!");
     console.log("Swap result:");
-    console.log(JSON.stringify(result, null, 2));
+    console.log(JSON.stringify(result.bundleStatus, null, 2));
+    console.log("\n🖋️ Transaction signature:", result.signature);
+    console.log(`🔗 View on Solscan: https://solscan.io/tx/${result.signature}`);
   } catch (error) {
     console.error("\n💥 Error in main function:");
     console.error(error.message);
