@@ -3,6 +3,7 @@
 ![Solana](https://img.shields.io/badge/Solana-362D59?style=for-the-badge&logo=solana&logoColor=white)
 ![Jupiter](https://img.shields.io/badge/Jupiter-FF6B35?style=for-the-badge&logo=jupiter&logoColor=white)
 ![Jito](https://img.shields.io/badge/Jito-00A86B?style=for-the-badge&logo=jito&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 
 A comprehensive tutorial for executing token swaps on Solana using Jupiter V6, incorporating advanced features like versioned transactions, priority fees, compute budget optimization, Address Lookup Tables (ALTs), and Jito bundles.
 
@@ -18,6 +19,7 @@ A comprehensive tutorial for executing token swaps on Solana using Jupiter V6, i
 - [Prerequisites](#-prerequisites)
 - [Installation](#-installation)
 - [Usage](#-usage)
+- [TypeScript Version](#-typescript-version)
 - [Code Explanation](#-code-explanation)
 - [Best Practices](#-best-practices)
 - [Contributing](#-contributing)
@@ -33,6 +35,7 @@ A comprehensive tutorial for executing token swaps on Solana using Jupiter V6, i
 - Address Lookup Tables (ALTs) for reduced transaction size
 - Jito bundles for MEV protection
 - Comprehensive error handling and logging
+- Available in both JavaScript and TypeScript
 
 ## 🛠 Prerequisites
 
@@ -72,6 +75,66 @@ npm start
 ```
 
 This will execute a sample swap of 0.01 SOL to USDC. Modify the `main` function in `index.js` to customize the swap parameters. Ensure you have the correct token addresses and amounts for your swap in the wallet for the swap to execute.
+
+## 📘 TypeScript Version
+
+A fully-typed TypeScript version of this tutorial is available in the `solana-swap-tutorial-typescript` directory. It provides all the same functionality as the JavaScript version but with the added benefits of type safety and improved developer experience.
+
+### Setting up the TypeScript Version
+
+1. Navigate to the TypeScript directory:
+
+   ```bash
+   cd solana-swap-tutorial-typescript
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file (or copy from the main project):
+   ```
+   SOLANA_RPC_URL=https://your-rpc-url-here
+   WALLET_PRIVATE_KEY=[your,private,keypair,array,here]
+   ```
+
+### Building and Running the TypeScript Version
+
+1. Build the TypeScript code:
+
+   ```bash
+   npm run build
+   ```
+
+2. Run the compiled JavaScript:
+
+   ```bash
+   npm start
+   ```
+
+   For development with hot-reloading:
+
+   ```bash
+   npm run dev
+   ```
+
+### Fallback Handling for Address Lookup Tables
+
+The TypeScript version includes improved error handling for Address Lookup Tables, with a fallback mechanism that allows transactions to proceed even when lookup tables cannot be retrieved or are invalid.
+
+### Customizing the TypeScript Swap
+
+To customize the swap parameters in the TypeScript version, modify the values in `src/index.ts`:
+
+```typescript
+const inputMint = "So11111111111111111111111111111111111111112"; // Wrapped SOL
+const outputMint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"; // USDC
+const amount = 0.01; // 0.01 SOL
+const initialSlippageBps = 100; // 1% initial slippage
+const maxRetries = 5;
+```
 
 ## 💻 Code Explanation
 
@@ -156,6 +219,7 @@ This tutorial implements several Solana development best practices:
 - **MEV Protection**: Integrates with Jito for protection against MEV (Miner Extractable Value).
 - **Error Handling**: Implements comprehensive error catching and logging for easier debugging.
 - **Modular Design**: Separates concerns into distinct functions for better maintainability.
+- **TypeScript Support**: Offers a fully-typed version for enhanced developer experience and code reliability.
 
 ## 🤝 Contributing
 
