@@ -22,8 +22,3 @@
   - PRIORITY_FEE_PROVIDER_URL, PRIORITY_FEE_PROVIDER_METHOD, PRIORITY_FEE_ACCOUNT_KEYS
   - JITO_FIRST_ATTEMPT_MIN_TIP_LAMPORTS
   - JITO_BUNDLE_URL regional guidance and reliability tips
-
-### Notes
-- Secrets are read from env; no keys committed.
-- .env is ignored at repo root (and for TS).
-
