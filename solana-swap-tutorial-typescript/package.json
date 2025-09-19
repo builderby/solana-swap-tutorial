@@ -1,32 +1,25 @@
 {
   "name": "solana-swap-tutorial-typescript",
   "version": "1.0.0",
-  "description": "A Solana Swap Tutorial by Builderby (TypeScript Version)",
-  "main": "dist/index.js",
-  "type": "commonjs",
+  "private": true,
   "scripts": {
-    "start": "node dist/index.js",
-    "build": "tsc",
-    "dev": "ts-node src/index.ts",
-    "watch": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
-    "test": "jest",
-    "lint": "eslint . --ext .ts"
+    "build": "tsc -p .",
+    "start": "node -r ts-node/register src/index.ts",
+    "dev": "node -r ts-node/register src/index.ts"
   },
-  "keywords": ["solana", "web3", "blockchain", "swap", "typescript"],
-  "author": "Builderby",
-  "license": "ISC",
   "dependencies": {
-    "@solana/spl-token": "^0.4.8",
-    "@solana/web3.js": "^1.95.2",
+    "@solana/web3.js": "^1.95.3",
     "axios": "^1.7.3",
     "bs58": "^5.0.0",
-    "dotenv": "^16.4.5",
-    "typescript": "^5.0.0",
-    "@types/node": "^20.0.0",
-    "ts-node": "^10.9.1"
+    "dotenv": "^16.4.5"
+  },
+  "overrides": {
+    "form-data": "^4.0.4",
+    "bigint-buffer": "^1.1.5"
   },
   "devDependencies": {
-    "@types/bs58": "^4.0.4",
-    "nodemon": "^3.1.4"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
 }
+

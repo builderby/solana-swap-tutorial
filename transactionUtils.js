@@ -23,25 +23,30 @@ function deserializeInstruction(instruction) {
 }
 
 async function getAddressLookupTableAccounts(keys) {
-  const addressLookupTableAccounts = await Promise.all(
-    keys.map(async (key) => {
-      const accountInfo = await connection.getAccountInfo(new PublicKey(key));
-      return {
-        key: new PublicKey(key),
-        state: accountInfo
-          ? AddressLookupTableAccount.deserialize(accountInfo.data)
-          : null,
-      };
-    })
-  );
-  return addressLookupTableAccounts.filter((account) => account.state !== null);
+  if (!keys || keys.length === 0) return [];
+  const pubkeys = keys.map((k) => new PublicKey(k));
+  const accounts = await connection.getMultipleAccountsInfo(pubkeys, { commitment: "processed" });
+  const list = [];
+  for (let i = 0; i < pubkeys.length; i++) {
+    const info = accounts[i];
+    if (info && info.data) {
+      try {
+        const state = AddressLookupTableAccount.deserialize(info.data);
+        list.push({ key: pubkeys[i], state });
+      } catch (_) {
+        // skip invalid ALT
+      }
+    }
+  }
+  return list;
 }
 
 async function simulateTransaction(
   instructions,
   payer,
   addressLookupTableAccounts,
-  maxRetries = 5
+  maxRetries = 5,
+  minContextSlot
 ) {
   console.log("🔍 Simulating transaction to estimate compute units...");
   const latestBlockhash = await connection.getLatestBlockhash("confirmed");
@@ -60,6 +65,7 @@ async function simulateTransaction(
       const simulation = await connection.simulateTransaction(transaction, {
         sigVerify: false,
         replaceRecentBlockhash: true,
+        minContextSlot,
       });
 
       if (simulation.value.err) {

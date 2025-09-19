@@ -1,22 +1,25 @@
-const {
-  Connection,
-  Keypair,
-} = require("@solana/web3.js");
+const { Connection, Keypair } = require("@solana/web3.js");
 const {
   deserializeInstruction,
   getAddressLookupTableAccounts,
   simulateTransaction,
   createVersionedTransaction,
 } = require("./transactionUtils");
-const { getTokenInfo, getAveragePriorityFee } = require("./utils");
+const {
+  getTokenInfo,
+  getAveragePriorityFee,
+  getPercentilePriorityFee,
+  getProviderEstimatedPriorityFee,
+} = require("./utils");
 const { getQuote, getSwapInstructions } = require("./jupiterApi");
 const {
   createJitoBundle,
   sendJitoBundle,
   checkBundleStatus,
+  confirmBundle,
 } = require("./jitoService");
 const { SOLANA_RPC_URL, WALLET_PRIVATE_KEY } = require("./config");
-const bs58 = require('bs58');
+const bs58 = require("bs58");
 
 const connection = new Connection(SOLANA_RPC_URL);
 const wallet = Keypair.fromSecretKey(
@@ -90,7 +93,9 @@ async function swap(
         addressLookupTableAddresses
       );
 
-      const latestBlockhash = await connection.getLatestBlockhash("finalized");
+      // Use a fresher commitment for recent blockhash to maximize landing chances
+      // Always fetch a fresh processed blockhash to avoid staleness
+      const latestBlockhash = await connection.getLatestBlockhash("processed");
 
       // 4. Simulate transaction to get compute units
       const instructions = [
@@ -107,7 +112,8 @@ async function swap(
         instructions,
         wallet.publicKey,
         addressLookupTableAccounts,
-        5
+        5,
+        latestBlockhash.lastValidBlockHeight ? undefined : undefined
       );
 
       if (computeUnits === undefined) {
@@ -119,10 +125,36 @@ async function swap(
         return null;
       }
 
-      const priorityFee = await getAveragePriorityFee();
+      // Collect program IDs from instructions to target provider estimator
+      const programIds = instructions
+        .map((ix) => ix.programId?.toString?.())
+        .filter(Boolean);
+      // Prefer provider estimate (targeted), then percentile; fallback to average
+      let priorityFee = await getProviderEstimatedPriorityFee(
+        undefined,
+        programIds
+      );
+      if (
+        !priorityFee ||
+        !Number.isFinite(priorityFee.microLamports) ||
+        priorityFee.microLamports <= 0
+      ) {
+        priorityFee = await getPercentilePriorityFee();
+      }
+      if (
+        !priorityFee ||
+        !Number.isFinite(priorityFee.microLamports) ||
+        priorityFee.microLamports <= 0
+      ) {
+        priorityFee = await getAveragePriorityFee();
+      }
 
       console.log(`🧮 Compute units: ${computeUnits}`);
-      console.log(`💸 Priority fee: ${priorityFee.microLamports} micro-lamports (${priorityFee.solAmount.toFixed(9)} SOL)`);
+      console.log(
+        `💸 Priority fee: ${
+          priorityFee.microLamports
+        } micro-lamports (${priorityFee.solAmount.toFixed(9)} SOL)`
+      );
 
       // 5. Create versioned transaction
       const transaction = createVersionedTransaction(
@@ -138,8 +170,14 @@ async function swap(
       transaction.sign([wallet]);
 
       // 7. Create and send Jito bundle
+      const attemptStart = Date.now();
       console.log("\n📦 Creating Jito bundle...");
-      const jitoBundle = await createJitoBundle(transaction, wallet);
+      const { bundle: jitoBundle, tipLamports } = await createJitoBundle(
+        transaction,
+        wallet,
+        latestBlockhash.blockhash,
+        retries
+      );
       console.log("✅ Jito bundle created successfully");
 
       console.log("\n📤 Sending Jito bundle...");
@@ -147,35 +185,25 @@ async function swap(
       console.log(`✅ Jito bundle sent. Bundle ID: ${bundleId}`);
 
       console.log("\n🔍 Checking bundle status...");
-      let bundleStatus = null;
-      let bundleRetries = 3;
-      const delay = 15000; // Wait 15 seconds
-
-      while (bundleRetries > 0) {
-        console.log(`⏳ Waiting for 15 seconds before checking status...`);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-
-        bundleStatus = await checkBundleStatus(bundleId);
-
-        if (bundleStatus && bundleStatus.status === "Landed") {
-          console.log(`✔ Bundle finalized. Slot: ${bundleStatus.landedSlot}`);
-          break;
-        } else if (bundleStatus && bundleStatus.status === "Failed") {
-          console.log("❌ Bundle failed. Retrying...");
-          bundleId = await sendJitoBundle(jitoBundle);
-          console.log(`New Bundle ID: ${bundleId}`);
-        } else {
-          console.log(
-            `Bundle not finalized. Status: ${
-              bundleStatus ? bundleStatus.status : "unknown"
-            }`
-          );
-        }
-
-        bundleRetries--;
-      }
+      const mainSig = bs58.encode(transaction.signatures[0]);
+      const bundleStatus = await confirmBundle(
+        bundleId,
+        mainSig,
+        60000,
+        2000,
+        3
+      );
+      const attemptMs = Date.now() - attemptStart;
+      console.log(
+        `⏱️ Attempt ${
+          retries + 1
+        } stats: time=${attemptMs}ms tip=${tipLamports} lamports status=${
+          bundleStatus ? bundleStatus.status : "unknown"
+        }`
+      );
 
       if (!bundleStatus || bundleStatus.status !== "Landed") {
+        // If not landed, rebuild with a new fresh blockhash and resubmit in next retry loop
         throw new Error("Failed to execute swap after multiple attempts.");
       }
 
@@ -227,7 +255,9 @@ async function main() {
     console.log("Swap result:");
     console.log(JSON.stringify(result.bundleStatus, null, 2));
     console.log("\n🖋️  Transaction signature:", result.signature);
-    console.log(`🔗 View on Solscan: https://solscan.io/tx/${result.signature}`);
+    console.log(
+      `🔗 View on Solscan: https://solscan.io/tx/${result.signature}`
+    );
   } catch (error) {
     console.error("\n💥 Error in main function:");
     console.error(error.message);

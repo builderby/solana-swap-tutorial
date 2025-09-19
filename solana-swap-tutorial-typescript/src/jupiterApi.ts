@@ -1,44 +1,22 @@
-import axios from "axios";
-import { JUPITER_V6_API } from "./config";
+import axios from 'axios';
 
-interface QuoteParams {
-  inputMint: string;
-  outputMint: string;
-  amount: number;
-  slippageBps: number;
-}
+const JUPITER_V6_API = 'https://quote-api.jup.ag/v6';
 
-interface SwapInstructionParams {
-  quoteResponse: any;
-  userPublicKey: string;
-  wrapUnwrapSOL?: boolean;
-}
-
-export async function getQuote(
-  inputMint: string,
-  outputMint: string,
-  amount: number,
-  slippageBps: number
-): Promise<any> {
+export async function getQuote(inputMint: string, outputMint: string, amount: number, slippageBps: number) {
   const response = await axios.get(`${JUPITER_V6_API}/quote`, {
-    params: {
-      inputMint,
-      outputMint,
-      amount,
-      slippageBps,
-    } as QuoteParams,
+    params: { inputMint, outputMint, amount, slippageBps },
+    timeout: 10000,
   });
   return response.data;
 }
 
-export async function getSwapInstructions(
-  quoteResponse: any,
-  userPublicKey: string
-): Promise<any> {
-  const response = await axios.post(`${JUPITER_V6_API}/swap-instructions`, {
-    quoteResponse,
-    userPublicKey,
-    wrapUnwrapSOL: true,
-  } as SwapInstructionParams);
+export async function getSwapInstructions(quoteResponse: any, userPublicKey: string) {
+  const response = await axios.post(
+    `${JUPITER_V6_API}/swap-instructions`,
+    { quoteResponse, userPublicKey, wrapUnwrapSOL: true },
+    { timeout: 15000 }
+  );
   return response.data;
-} 
+}
+
+
